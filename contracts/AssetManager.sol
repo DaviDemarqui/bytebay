@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+
+/**
+ * @title  AssetManager
+ * @author Davi Demarqui (Dave)
+ * @notice AssetManager is a contract with the
+    goal to concentrate all the code related with
+    the asset management in a modular way.
+ */
 contract AssetManager {
 
     /*
@@ -15,6 +23,7 @@ contract AssetManager {
         string filePath;
         string fileType;
         uint256 fileSize;
+        uint256 price;
         address owner;
     }
 
@@ -25,6 +34,7 @@ contract AssetManager {
         string filePath,
         string fileType,
         uint256 fileSize,
+        uint256 price,
         address owner
     );
 
@@ -40,7 +50,8 @@ contract AssetManager {
         string memory _description,
         string memory _filePath,
         string memory _fileType,
-        uint256 _fileSize
+        uint256 _fileSize,
+        uint256 _price
     ) public {
 
         require(bytes(_name).length > 0);
@@ -56,6 +67,7 @@ contract AssetManager {
             _filePath,
             _fileType,
             _fileSize,
+            _price,
             payable(msg.sender)
         );
 
@@ -68,6 +80,7 @@ contract AssetManager {
             _filePath,
             _fileType,
             _fileSize,
+            _price,
             payable(msg.sender)
         );
     }
@@ -91,4 +104,21 @@ contract AssetManager {
         }
     }
 
+    function buyAsset(
+        uint256 _assetId
+    ) payable public {
+
+        uint256 amount = msg.value;
+        require(
+            msg.sender != assets[_assetId].owner,
+            "You're already the owner of this asset"
+        );
+        require(
+            amount == assets[_assetId].price,
+            "Invalid value"
+        );
+
+        (bool success, ) = assets[_assetId].owner.call{value: msg.value}("");
+        require(success, "Payment Failed");
+    }
 }
